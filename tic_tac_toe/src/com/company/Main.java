@@ -1,6 +1,5 @@
 package com.company;
 
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Scanner;
 
@@ -45,16 +44,16 @@ public class Main {
     }
 
     private static void printTable() {
-        System.out.println(mainTable[0] + " | " + mainTable[1] + " | " +mainTable[2] );
-        System.out.println(mainTable[3] + " | " + mainTable[4] + " | " +mainTable[5] );
-        System.out.println(mainTable[6] + " | " + mainTable[7] + " | " +mainTable[8] );
+        System.out.println(mainTable[0] + " | " + mainTable[1] + " | " + mainTable[2]);
+        System.out.println(mainTable[3] + " | " + mainTable[4] + " | " + mainTable[5]);
+        System.out.println(mainTable[6] + " | " + mainTable[7] + " | " + mainTable[8]);
         System.out.println("");
-        System.out.println("next turn");
+        System.out.println("**next turn**");
         System.out.println("");
 
     }
 
-    private static int playerChoose(@NotNull Scanner sc) {
+    private static int playerChoose(Scanner sc) {
         int ch;
         do {
             System.out.println("input number you want :");
@@ -69,13 +68,72 @@ public class Main {
     }
 
     private static int programChoose() {
+        int[] playerWinMove = winMove('o');
+        int[] programWinMove = winMove('x');
+        if (playerWinMove.length != 0) {//player has move to win
+            if (programWinMove.length != 0) {//program has move to win
+                for (int i = 0; i < programWinMove.length; i++) {
+                    for (int j = 0; j < playerWinMove.length; j++) {
+                        if (programWinMove[i] == playerWinMove[j]) {
+                            mainTable[programWinMove[i]] = 'x';
+                            numTable[programWinMove[i]] = 1;
+                            return programWinMove[i];
+                        }
+                    }
+                }
+                for (int i = 0; i < programWinMove.length; i++) {
+                    mainTable[programWinMove[i]] = 'x';
+                    numTable[programWinMove[i]] = 1;
+                    return programWinMove[i];
+                }
+            }
+        } else {//player has no move to win
+            if (programWinMove.length != 0) {//program has move to win
+                for (int i = 0; i < programWinMove.length; i++) {
+                    mainTable[programWinMove[i]] = 'x';
+                    numTable[programWinMove[i]] = 1;
+                    return programWinMove[i];
+                }
+            } else {//program has no move to win
+                for (int i = 0; i < corners.length; i++) {
+                    if (numTable[corners[i] - 1] == 0) {
+                        mainTable[corners[i] - 1] = 'x';
+                        numTable[corners[i] - 1] = 1;
+                        return corners[i] - 1;
+                    }
+                }
+            }
+        }
         int ran;
         do {
-            ran = (int) ((Math.random() * (8 - 0)) + 0);
-        } while (numTable[ran] == 1 );
+            ran = (int) (Math.random() * 8.0D + 0.0D);
+        } while (numTable[ran] == 1);
+
         mainTable[ran] = 'x';
         numTable[ran] = 1;
         return ran;
+    }
+
+    private static int[] winMove(char player) {
+        int[] ret = new int[winMoveDigits(player)];
+        int c = 0;
+        for (int i = 0; i < numTable.length; i++) {
+            if (winnerChoose(i, player) && numTable[i] == 0) {
+                ret[c] = i;
+                c++;
+            }
+        }
+        return ret;
+    }
+
+    private static int winMoveDigits(char player) {
+        int ret = 0;
+        for (int i = 0; i < numTable.length; i++) {
+            if (winnerChoose(i, player) && numTable[i] == 0) {
+                ret++;
+            }
+        }
+        return ret;
     }
 
     private static boolean winnerChoose(int h, char player) {
